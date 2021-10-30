@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PwC Assignment</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="fa/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="js/vue.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <main id="mapview">
+            <div class="main-area">
+                <div id="search-map" class="search-filter shadow-sm">
+                    <div class="sidebar">
+                        <div class="search-input">
+                            <input type="search" v-model="q" placeholder="Search..." class="form-control search-text" />
+                            <i class="fa fa-search"></i>
+                        </div>
+                        <div class="p-2">
+                            <div class="row">
+                                <div class="col-sm-3 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Labels:</label>
+                                        <div v-on:click="showHideLabels()"
+                                            class="d-flex justify-content-between align-items-center">
+                                            <span class="d-inline-block me-3">{{ label_selected.length }}
+                                                Selected</span>
+                                            <span>
+                                                <i class="fa fa-angle-down"></i>
+                                            </span>
+                                        </div>
+                                        <div v-if="show_lebel_selection" class="search-dropdown">
+                                            <button v-on:click="showHideLabels()" class="dd-close">&times;</button>
+                                            <ul>
+                                                <li v-for="(item, index) in labels">
+                                                    <button v-on:click="selectLabelItem(index)"
+                                                        v-bind:class="item.selected ? 'active' : ''">
+                                                        <label> {{ item.label }}</label>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Categories:</label>
+                                        <div v-on:click="showHideCategory()"
+                                            class="d-flex justify-content-between align-items-center">
+                                            <span class="d-inline-block me-3">{{ category_selected.length }}
+                                                Selected</span>
+                                            <span>
+                                                <i class="fa fa-angle-down"></i>
+                                            </span>
+                                        </div>
+                                        <div v-if="show_category_selection" class="search-dropdown">
+                                            <button v-on:click="showHideCategory()" class="dd-close">&times;</button>
+                                            <ul>
+                                                <li v-for="(item, index) in categories">
+                                                    <button v-on:click="selectCategoryItem(index)"
+                                                        v-bind:class="item.selected ? 'active' : ''">
+                                                        <label> {{ item.label }}</label>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Show Records:</label>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <input type="number" v-model="limit" class="form-attendence" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Date:</label>
+                                        <div v-on:click="showDateSelection()"
+                                            class="d-flex justify-content-between align-items-center">
+                                            <span class="d-inline-block me-3">{{dateText}}</span>
+                                            <span>
+                                                <i class="fa fa-angle-down"></i>
+                                            </span>
+                                        </div>
+                                        <div v-if="show_date_selection" class="search-dropdown">
+                                            <ul class="dates">
+                                                <li>
+                                                    <button v-on:click="setDateToday()">
+                                                        <label>Today</label>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button v-on:click="setDateTomorrow()">
+                                                        <label>Tomorrow</label>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button v-on:click="setNextWeek()">
+                                                        <label>Next Week</label>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button v-on:click="setNextMonth()">
+                                                        <label>Next Month</label>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <div class="d-flex mb-1 justify-content-between align-items-center">
+                                                        <input type="date" v-model="d1" class="date_1" />
+                                                        <input type="date" v-model="d2" v-bind:min="d1"
+                                                            class="date_1" />
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span></span>
+                                                        <div v-on:click="showDateSelection()"
+                                                            class="btn btn-outline-danger btn-xs btn-done">
+                                                            <span>DONE</span>
+                                                        </div>
+                                                    </div>
+
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Event Status:</label>
+                                        <div v-on:click="showHideStatus()"
+                                            class="d-flex justify-content-between align-items-center">
+                                            <span class="d-inline-block me-3">{{ status_text }}</span>
+                                            <span>
+                                                <i class="fa fa-angle-down"></i>
+                                            </span>
+                                        </div>
+                                        <div v-if="show_staus_selection" class="search-dropdown">
+                                            <ul class="dates">
+                                                <li><button
+                                                        v-on:click="setStatus('Active')"><label>Active</label></button>
+                                                </li>
+                                                <li><button
+                                                        v-on:click="setStatus('Canceled')"><label>Canceled</label></button>
+                                                </li>
+                                                <li><button
+                                                        v-on:click="setStatus('Postponed')"><label>Postponed</label></button>
+                                                </li>
+                                                <li><button v-on:click="setStatus('All')"><label>All</label></button>
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Ranks:</label>
+                                        <div v-on:click="showHideRank()"
+                                            class="d-flex justify-content-between align-items-center">
+                                            <span class="d-inline-block me-3">{{ rank }}</span>
+                                            <span>
+                                                <i class="fa fa-angle-down"></i>
+                                            </span>
+                                        </div>
+                                        <div v-if="show_rank_selection" class="search-dropdown">
+                                            <input type="range" v-on:blur="showHideRank()" v-model="rank"
+                                                class="form-range" value="2" min="0" max="5" step="1" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2 col-form-label">
+                                    <div
+                                        class="search-wrapper border-bottom p-2 d-flex justify-content-between align-items-center">
+                                        <label class="text-primary">Min. Attendence:</label>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <input type="number" v-model="attendence" class="form-attendence" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2 border-start d-flex flex-column ">
+                                    <button v-on:click="applySearchData()" class="btn btn-sm btn-info">Search</button>
+                                    <div v-html="record_text"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="view-map">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYXNoaXNoamhhMjEiLCJhIjoiY2t2YmJvdTdtMjdqdDMzb2t4NmNvdHE4NiJ9.ZqBYpLao0YBfuaLa7fuWew';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v10',
+            center: [55.363, 25.252],
+            zoom: 12
+        });
+
+        var vm = new Vue({
+            el: '#search-map',
+            data: {
+                markers: [],
+                events: [],
+                categories: [],
+                labels: [],
+                country: 'AE',
+                limit: 10,
+                q: '',
+                show_lebel_selection: false,
+                show_category_selection: false,
+                show_limit_selection: false,
+                show_date_selection: false,
+                show_staus_selection: false,
+                show_attendence_selection: false,
+                show_rank_selection: false,
+                label_selected: [],
+                category_selected: [],
+                dateText: '-',
+                rank: 2,
+                status_text: 'All',
+                attendence: 1000,
+                d1: new Date(),
+                d2: new Date(),
+                selected_cats: [],
+                selected_lebels: [],
+                record_text: ''
+            },
+            methods: {
+                showHideLabels: function () {
+                    this.show_category_selection = false;
+                    this.show_date_selection = false;
+                    this.show_lebel_selection = !this.show_lebel_selection;
+                },
+
+                selectLabelItem: function (index) {
+                    this.labels[index].selected = !this.labels[index].selected;
+                    let ls = [];
+                    let tmpselected = [];
+                    for (const item of this.labels) {
+                        if (item.selected) {
+                            ls.push(item);
+                            tmpselected.push(item.slug);
+                        }
+                    }
+                    this.label_selected = ls;
+                    this.selected_lebels = tmpselected;
+
+                },
+
+                showHideCategory: function () {
+                    this.show_lebel_selection = false;
+                    this.show_date_selection = false;
+                    this.show_category_selection = !this.show_category_selection;
+                },
+
+                selectCategoryItem: function (index) {
+                    this.categories[index].selected = !this.categories[index].selected;
+                    let ls = [];
+                    let tmpselected = [];
+                    for (const item of this.categories) {
+                        if (item.selected) {
+                            ls.push(item);
+                            tmpselected.push(item.slug);
+                        }
+                    }
+                    this.category_selected = ls;
+                    this.selected_cats = tmpselected;
+                },
+
+                showDateSelection: function () {
+                    this.show_lebel_selection = false;
+                    this.show_category_selection = false;
+                    this.show_date_selection = !this.show_date_selection;
+                },
+
+                setDateToday: function () {
+                    this.show_date_selection = false;
+                    this.d1 = new Date();
+                    this.dateText = "Today";
+                },
+
+                setDateTomorrow: function () {
+                    this.dateText = "Tomorrow";
+                    this.show_date_selection = false;
+                    let dt = new Date();
+                    dt.setDate(dt.getDate() + 1);
+                    this.d1 = dt;
+                },
+
+                setStatus: function (txt) {
+                    this.status_text = txt;
+                    this.show_staus_selection = false;
+                },
+
+                showHideStatus: function () {
+                    this.show_staus_selection = !this.show_staus_selection;
+                },
+
+                showHideRank: function () {
+                    this.show_rank_selection = !this.show_rank_selection;
+                },
+
+                setNextWeek: function () {
+                    var d1 = new Date();
+                    var d2 = new Date();
+                    let days = 6 - d1.getDay();
+                    d1.setDate(d1.getDate() + days + 1);
+                    d2.setDate(d1.getDate() + 7);
+                    let txt1 = d1.getFullYear() + '-' + (d1.getMonth() + 1) + '-' + d1.getDate();
+                    let txt2 = d2.getFullYear() + '-' + (d2.getMonth() + 1) + '-' + d2.getDate();
+                    this.dateText = txt1 + ' - ' + txt2;
+                    this.d1 = d1;
+                    this.d2 = d2;
+                },
+
+                setNextMonth: function () {
+                    var d1 = new Date();
+                    var d2 = new Date();
+                    let days = 31 - d1.getDate();
+                    d1.setDate(d1.getDate() + days + 1);
+                    d2.setDate(d1.getDate() + 30);
+                    let txt1 = d1.getFullYear() + '-' + (d1.getMonth() + 1) + '-' + d1.getDate();
+                    let txt2 = d2.getFullYear() + '-' + (d2.getMonth() + 2) + '-' + d2.getDate();
+                    this.dateText = txt1 + ' - ' + txt2;
+                    this.d1 = d1;
+                    this.d2 = d2;
+                },
+
+                showData: function () {
+                    this.markers = [];
+                    for (const mrkr of this.events) {
+                        let mp = new mapboxgl.Marker();
+                        mp.setLngLat([mrkr.lng, mrkr.lat]);
+                        let title = "<b>" + mrkr.title + "</b><br />" + mrkr.address;
+                        title += '<br />Status:' + mrkr.state;
+                        let pp = new mapboxgl.Popup({ offset: 25 }).setHTML(title);
+                        mp.setPopup(pp);
+                        mp.addTo(map);
+                        this.markers.push(mp);
+                    }
+                },
+
+                removeAll: function () {
+                    for (const mrkr of this.markers) {
+                        mrkr.remove();
+                    }
+                },
+
+                applySearchData: function () {
+                    this.removeAll();
+
+                    var myHeaders = new Headers();
+                    myHeaders.append("Authorization", "Bearer bW-5tFmiN3OKrpwD3oSknjzQES_H12b_SkNCGLNG");
+
+                    var requestOptions = {
+                        method: 'GET',
+                        headers: myHeaders,
+                        redirect: 'follow'
+                    };
+
+                    let url = "https://api.predicthq.com/v1/events/?limit=" + this.limit +
+                        '&country=' + this.country + '&q=' + this.q;
+                    if (this.selected_lebels.length > 0) {
+                        url += '&label=' + this.selected_lebels.toString();
+                    }
+                    if (this.selected_cats.length > 0) {
+                        url += '&category=' + this.selected_cats.toString();
+                    }
+                    if (this.status_text != 'All') {
+                        // url += '&status=' + this.status_text.toLowerCase();
+                        let a1 = this.d1;
+                        let a2 = this.d2;
+                        at1 = a1.getFullYear() + '-' + (a1.getMonth() + 1) + '-' + a1.getDate();
+                        at2 = a2.getFullYear() + '-' + (a2.getMonth() + 1) + '-' + a2.getDate();
+
+                        if (this.status_text == 'All') {
+                            console.log(this.status_text);
+                        } else {
+                            let txt = this.status_text;
+                            if (txt == 'Active') {
+                                if (this.dateText == "Today" || this.dateText == '') {
+                                    url += '&active.gte=' + at1 + '&active.lte=' + at1;
+                                } else if (this.dateText == "Tomorrow") {
+                                    url += '&active.gte=' + at1 + '&active.lte=' + at1;
+                                } else {
+                                    url += '&active.gte=' + at1 + '&active.lte=' + at2;
+                                }
+                            } else if (txt == 'Canceled') {
+                                if (this.dateText == "Today" || this.dateText == '') {
+                                    url += '&cancelled.gte=' + at1 + '&cancelled.lte=' + at1;
+                                } else if (this.dateText == "Tomorrow") {
+                                    url += '&cancelled.gte=' + at1 + '&cancelled.lte=' + at1;
+                                } else {
+                                    url += '&cancelled.gte=' + at1 + '&cancelled.lte=' + at2;
+                                }
+                            } else if (txt == 'Postponed') {
+                                if (this.dateText == "Today" || this.dateText == '') {
+                                    url += '&postponed.gte=' + at1 + '&postponed.lte=' + at1;
+                                } else if (this.dateText == "Tomorrow") {
+                                    url += '&postponed.gte=' + at1 + '&postponed.lte=' + at1;
+                                } else {
+                                    url += '&postponed.gte=' + at1 + '&postponed.lte=' + at2;
+                                }
+                            }
+
+                        }
+                    }
+                    if (this.rank > 0) {
+                        url += '&local_rank.lte=' + (this.rank * 20)
+                    }
+                    if (this.attendence > 0) {
+                        url += '&phq_attendance=' + this.attendence
+                    }
+                    if (this.dateText != '') {
+                        let d1 = this.d1;
+                        let d2 = this.d2;
+                        dt1 = d1.getFullYear() + '-' + (d1.getMonth() + 1) + '-' + d1.getDate();
+                        dt2 = d2.getFullYear() + '-' + (d2.getMonth() + 1) + '-' + d2.getDate();
+                        if (this.dateText == "Today") {
+                            url += '&start.gte=' + dt1 + '&start.lte=' + dt1;
+                        } else if (this.dateText == "Tomorrow") {
+                            url += '&start.gte=' + dt1 + '&start.lte=' + dt1;
+                        } else {
+                            url += '&start.gte=' + dt1 + '&start.lte=' + dt2;
+                        }
+                    }
+                    console.log(url);
+                    this.markers = [];
+                    fetch(url, requestOptions)
+                        .then(response => response.json())
+                        .then(result => {
+                            let events = result.results;
+                            console.log(events[0]);
+                            this.record_text = '<span class="text-danger">' + events.length + ' Records found</span>';
+                            let mrkrs = [];
+                            events.forEach(item => {
+                                let mrkr = {};
+                                mrkr.title = item.title;
+                                mrkr.desc = item.description;
+                                mrkr.category = item.category;
+                                mrkr.rank = item.rank;
+                                mrkr.local_rank = item.local_rank;
+                                mrkr.start = item.start;
+                                mrkr.end = item.end;
+                                mrkr.lng = item.location[0];
+                                mrkr.lat = item.location[1];
+                                mrkr.country = item.country;
+                                mrkr.state = item.state;
+                                mrkr.address = '';
+                                const adrs = item.entities;
+                                if (adrs.length > 0) {
+                                    let ad = adrs[0].name + '<br />' + adrs[0].formatted_address;
+                                    mrkr.address = ad;
+                                }
+                                mrkrs.push(mrkr);
+                            });
+                            this.events = mrkrs;
+
+                            this.showData();
+                        })
+                        .catch(error => console.log('error', error));
+                }
+            },
+
+            created: function () {
+
+                var myHeaders = new Headers();
+                myHeaders.append("Authorization", "Bearer bW-5tFmiN3OKrpwD3oSknjzQES_H12b_SkNCGLNG");
+
+                var requestOptions = {
+                    method: 'GET',
+                    headers: myHeaders,
+                    redirect: 'follow'
+                };
+
+                let url = "https://api.predicthq.com/v1/events/count/?country=" + this.country;
+                fetch(url, requestOptions)
+                    .then(ab => ab.json())
+                    .then(resp => {
+                        for (cat in resp.categories) {
+                            let ob = {
+                                label: cat.replace('-', ' ').toUpperCase(),
+                                slug: cat,
+                                selected: false
+                            }
+                            this.categories.push(ob);
+                        }
+
+                        for (cat in resp.labels) {
+                            let ob = {
+                                label: cat.replace('-', ' ').toUpperCase(),
+                                slug: cat,
+                                selected: false
+                            }
+                            this.labels.push(ob);
+                        }
+                    })
+            }
+        });
+    </script>
+</body>
+
+</html>

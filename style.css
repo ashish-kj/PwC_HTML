@@ -1,0 +1,47 @@
+body {background-color:#fff; font-family:'Manrope',sans-serif; font-size:12px;}
+.rounded {border-radius:3px;}
+.btn {border-radius:2px;}
+.btn-xs {padding:2px 6px; font-size:12px;}
+.homepage {height:100vh; background:url(img/dubai.jpg);}
+.imglayer {position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center;}
+.welcome {width:600px; background:#fff; border-radius:3px;}
+.note {color:#888; font-size:80%;}
+
+
+#map {border-radius:3px; overflow:hidden; width:100%; height:500px;}
+
+.search-filter {border:solid 1px #eee; background:#fff; padding:1px;}
+.view-map {padding:10px 0;}
+main {display:flex; justify-content:space-between; padding:10px 0;}
+.main-area {flex:1; padding:0 10px;}
+
+
+body::-webkit-scrollbar {width:6px;}
+body::-webkit-scrollbar-thumb {background-color:#2878f0; border-radius:10px;}
+.btn:focus {box-shadow:none;}
+
+.sidebar ul {list-style:none; margin:0; padding:5px;}
+.sidebar ul li {display:inline-block;}
+.sidebar ul li button {display:flex; background:#fff; padding:2px 5px; justify-content:space-between; margin:0 2px; cursor:pointer; align-items:center; border:solid 1px #ddd; margin-bottom:2px; border-radius:2px;}
+.sidebar ul li button label {cursor:pointer; font-size:10px;}
+.sidebar ul li i.fa {color:#ccc;}
+.sidebar ul li button.active {border-color:#2878f0; color:#2878f0;}
+.sidebar ul li button.active i.fa {color:#2878f0;}
+.sidebar ul li button:hover {background:#eee;}
+.dd-close {position:absolute; right:3px; top:3px; font-size:12px; background:#fff; border:none;}
+.dd-close:hover {background:#eee;}
+.search-wrapper {position:relative;}
+.search-dropdown {position:absolute; left:0; top:34px; right:0; background:#fff; border:solid 1px #eee; z-index:2;}
+
+.search-text {border:none; border-bottom:solid 1px #ddd; padding-left:40px; background:#efefef; font-size:12px; border-radius:0;}
+.search-text:focus {box-shadow:none; border-color:#2878f0; background:#efefef;}
+.search-input {position:relative;}
+.search-input .fa {position:absolute; left:10px; top:8px;}
+
+.sidebar ul.dates li {display:block;}
+.sidebar ul.dates li button {width:100%; margin:0 0 4px;}
+
+.form-attendence {border:none; padding:3px; text-align:right; width:80px;}
+.form-attendence:focus {border:none;}
+#done {border:none; color:#e65b5b;}
+.date_1 {border:solid 1px #ddd; padding:3px; border-radius:3px;}
